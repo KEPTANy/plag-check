@@ -181,13 +181,13 @@ docker compose down -v
 ## Структура проекта
 
 ```
-user-service/          # Сервис управления пользователями
+user-service/           # Сервис управления пользователями
 file-storage-service/   # Сервис хранения файлов
 analysis-service/       # Сервис анализа (плагиат, облако слов)
-gateway-api/           # API Gateway
-shared/                # Общий код (JWT, middleware)
-docker-compose.yml     # Конфигурация Docker Compose
-README.md             # Документация
+gateway-api/            # API Gateway
+shared/                 # Общий код (JWT, middleware)
+docker-compose.yml      # Конфигурация Docker Compose
+README.md               # Документация
 ```
 
 ## Алгоритм проверки на плагиат

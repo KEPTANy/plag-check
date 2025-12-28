@@ -3,7 +3,6 @@ package handler
 import (
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"strconv"
 

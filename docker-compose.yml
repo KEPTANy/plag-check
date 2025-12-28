@@ -58,6 +58,45 @@ services:
         condition: service_healthy
     restart: on-failure
 
+  analysis-service:
+    build:
+      context: .
+      dockerfile: analysis-service/Dockerfile
+    ports:
+      - "8083:8083"
+    environment:
+      PORT: 8083
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_NAME: ${POSTGRES_DB}
+      JWT_SECRET: ${JWT_SECRET}
+      STORAGE_ROOT: ${STORAGE_ROOT}
+    volumes:
+      - uploads_volume:${STORAGE_ROOT}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: on-failure
+
+  gateway-api:
+    build:
+      context: .
+      dockerfile: gateway-api/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      PORT: 8080
+      USER_SERVICE_URL: http://user-service:8081
+      FILE_STORAGE_SERVICE_URL: http://file-storage-service:8082
+      ANALYSIS_SERVICE_URL: http://analysis-service:8083
+    depends_on:
+      - user-service
+      - file-storage-service
+      - analysis-service
+    restart: on-failure
+
 volumes:
   postgres_data:
   uploads_volume:

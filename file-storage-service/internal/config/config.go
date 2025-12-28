@@ -10,8 +10,9 @@ import (
 type Config struct {
 	Port        string
 	DatabaseURL string
+	StorageRoot string
+	MaxFileSize int64
 	JWTSecret   string
-	BCryptCost  int
 }
 
 func getDatabaseURL() (string, error) {
@@ -57,14 +58,19 @@ func (c *Config) Load() error {
 		return err
 	}
 
+	c.StorageRoot, ok = os.LookupEnv("STORAGE_ROOT")
+	if !ok {
+		return errors.New("Failed to load STORAGE_ROOT variable")
+	}
+
+	c.MaxFileSize, err = strconv.ParseInt(os.Getenv("MAX_FILE_SIZE"), 10, 64)
+	if err != nil {
+		return errors.New("Failed to load MAX_FILE_SIZE variable")
+	}
+
 	c.JWTSecret, ok = os.LookupEnv("JWT_SECRET")
 	if !ok {
 		return errors.New("Failed to load JWT_SECRET variable")
-	}
-
-	c.BCryptCost, err = strconv.Atoi(os.Getenv("BCRYPT_COST"))
-	if err != nil {
-		return errors.New("Failed to load BCRYPT_COST variable")
 	}
 
 	return nil

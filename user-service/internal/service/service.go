@@ -51,7 +51,7 @@ func (u *userService) Login(ctx context.Context, req *model.LoginRequest) (*mode
 		return nil, errors.New("Invalid password or username")
 	}
 
-	token, err := jwt.GenerateToken(time.Minute*time.Duration(req.DurationMin), req.Username, user.Role, u.jwtSecret)
+	token, err := jwt.GenerateToken(time.Minute*time.Duration(req.DurationMin), user.ID, req.Username, user.Role, u.jwtSecret)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to generate jwt token: %w", err)
 	}

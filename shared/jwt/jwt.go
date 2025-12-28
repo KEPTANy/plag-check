@@ -3,19 +3,22 @@ package jwt
 import (
 	"time"
 
+	"github.com/gofrs/uuid/v5"
 	"github.com/golang-jwt/jwt/v5"
 )
 
 type Claims struct {
-	UserID string `json:"user_id"`
-	Role   string `json:"role"`
+	UserID   uuid.UUID `json:"user_id"`
+	Username string    `json:"username"`
+	Role     string    `json:"role"`
 	jwt.RegisteredClaims
 }
 
-func GenerateToken(duration time.Duration, userID, role, secret string) (string, error) {
+func GenerateToken(duration time.Duration, userID uuid.UUID, username, role, secret string) (string, error) {
 	claims := &Claims{
-		UserID: userID,
-		Role:   role,
+		UserID:   userID,
+		Username: username,
+		Role:     role,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(duration)),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -26,7 +29,7 @@ func GenerateToken(duration time.Duration, userID, role, secret string) (string,
 	return token.SignedString([]byte(secret))
 }
 
-func ValidateToken(token, secret string) (*Claims, error) {
+func GetTokenClaims(token, secret string) (*Claims, error) {
 	tmp, err := jwt.ParseWithClaims(token, &Claims{}, func(token *jwt.Token) (any, error) {
 		return []byte(secret), nil
 	})

@@ -35,5 +35,29 @@ services:
         condition: service_healthy
     restart: on-failure
 
+  file-storage-service:
+    build:
+      context: .
+      dockerfile: file-storage-service/Dockerfile
+    ports:
+      - "8082:8082"
+    environment:
+      PORT: 8082
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_NAME: ${POSTGRES_DB}
+      JWT_SECRET: ${JWT_SECRET}
+      MAX_FILE_SIZE: ${MAX_FILE_SIZE}
+      STORAGE_ROOT: ${STORAGE_ROOT}
+    volumes:
+      - uploads_volume:${STORAGE_ROOT}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: on-failure
+
 volumes:
   postgres_data:
+  uploads_volume:

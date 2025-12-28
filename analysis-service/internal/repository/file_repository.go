@@ -73,10 +73,10 @@ func (r *fileRepository) GetFilesByHash(ctx context.Context, hash string) ([]mod
 
 func (r *fileRepository) GetPlagiarismGroups(ctx context.Context) ([]model.PlagiarismResult, error) {
 	query := `
-		SELECT file_hash, COUNT(*) as count
+		SELECT file_hash, COUNT(DISTINCT student_id) as count
 		FROM files
 		GROUP BY file_hash
-		HAVING COUNT(*) > 1
+		HAVING COUNT(DISTINCT student_id) > 1
 		ORDER BY count DESC
 	`
 

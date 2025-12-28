@@ -68,7 +68,7 @@ func (s *analysisService) GetWordCloud(ctx context.Context, fileID int) ([]byte,
 		return nil, fmt.Errorf("Failed to marshal word cloud config: %w", err)
 	}
 
-	apiURL := fmt.Sprintf("https://quickchart.io/chart?c=%s", url.QueryEscape(string(configJSON)))
+	apiURL := fmt.Sprintf("https://quickchart.io/wordcloud?text=%s", url.QueryEscape(string(configJSON)))
 
 	client := &http.Client{
 		Timeout: 30 * time.Second,

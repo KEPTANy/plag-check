@@ -52,12 +52,17 @@ func (s *storage) SaveFile(ctx context.Context, file multipart.File, header *mul
 	hashWriter := sha256.New()
 	file_ := io.TeeReader(file, hashWriter)
 
+	written, err := io.Copy(tempFile, file_)
+	if err != nil {
+		return "", "", 0, fmt.Errorf("Failed to copy file: %w", err)
+	}
+
 	hash = hex.EncodeToString(hashWriter.Sum(nil))
 	storagePath = storagePathFromHash(hash)
 	fullPath := filepath.Join(s.root, storagePath)
 
 	if exists := s.FileExists(ctx, storagePath); exists {
-		return hash, storagePath, size, nil
+		return hash, storagePath, written, nil
 	}
 
 	dir := filepath.Dir(fullPath)
@@ -71,13 +76,14 @@ func (s *storage) SaveFile(ctx context.Context, file multipart.File, header *mul
 	}
 	defer outFile.Close()
 
-	written, err := io.Copy(outFile, file_)
+	tempFile.Seek(0, 0)
+	written2, err := io.Copy(outFile, tempFile)
 	if err != nil {
 		os.Remove(fullPath)
 		return "", "", 0, fmt.Errorf("Failed to save file: %w", err)
 	}
 
-	if written != header.Size {
+	if written2 != written {
 		return "", "", 0, fmt.Errorf("File size mismatch")
 	}
 
@@ -101,6 +107,7 @@ func (s *storage) GetFile(ctx context.Context, storagePath string) (rc io.ReadCl
 }
 
 func (s *storage) FileExists(ctx context.Context, storagePath string) bool {
-	_, err := os.Stat(storagePath)
-	return err == nil || !os.IsNotExist(err)
+	fullPath := filepath.Join(s.root, storagePath)
+	_, err := os.Stat(fullPath)
+	return err == nil
 }
